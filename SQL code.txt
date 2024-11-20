@@ -1,0 +1,104 @@
+CREATE TABLE ola
+(	Date DATE,
+	Time TIME,
+	Booking_ID VARCHAR(20),
+	Booking_Status VARCHAR(30),
+	Customer_ID VARCHAR(15),
+	Vehicle_Type VARCHAR(20),
+	Pickup_Location VARCHAR(30),
+	Drop_Location VARCHAR(30),
+	V_TAT VARCHAR(10),
+	C_TAT VARCHAR(20),
+	Canceled_Rides_by_Customer VARCHAR(50),
+	Canceled_Rides_by_Driver VARCHAR(50),
+	Incomplete_Rides VARCHAR(20),
+	Incomplete_Rides_Reason	VARCHAR(20),
+	Booking_Value int,
+	Payment_Method VARCHAR(20),
+	Ride_Distance int,
+	Driver_Ratings VARCHAR(10),
+	Customer_Rating VARCHAR(10)
+);
+
+SELECT * FROM ola;
+
+---------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+
+
+-- Q1. Retrieve all successful bookings.
+
+SELECT *
+FROM ola
+WHERE booking_status ILIKE 'success';
+---------------------------------------------------------------------------------------------------------------------
+
+-- Q2. Find the average ride distance for each vehicle type.
+
+SELECT vehicle_type, ROUND( AVG(ride_distance), 2 ) AS avg_ride_distance
+FROM ola
+GROUP BY vehicle_type
+ORDER BY avg_ride_distance DESC;
+---------------------------------------------------------------------------------------------------------------------
+
+-- Q3. Get the total number of cancelled rides by customers.
+
+SELECT COUNT(booking_status) AS total_rides_canceled_by_customers
+FROM ola
+WHERE booking_status ILIKE 'Canceled by Customer';
+---------------------------------------------------------------------------------------------------------------------
+
+-- Q4. List the top 5 customers who booked the highest number of rides.
+
+SELECT customer_id, COUNT(*) AS total_rides_booked
+FROM ola
+GROUP BY customer_id
+ORDER BY total_rides_booked DESC, customer_id ASC
+LIMIT 5;
+---------------------------------------------------------------------------------------------------------------------
+
+-- Q5. Get the number of rides cancelled by drivers due to personal and car-related issues.
+
+SELECT COUNT(*) AS rides_canceled_by_driver
+FROM ola
+WHERE canceled_rides_by_driver ILIKE 'personal & car related issue';
+---------------------------------------------------------------------------------------------------------------------
+
+-- Q6. Find the maximum and minimum driver ratings for Prime Sedan bookings.
+
+WITH cte AS(
+			SELECT driver_ratings
+			FROM ola
+			WHERE vehicle_type ILIKE 'prime sedan' AND driver_ratings != 'null'
+		   )
+SELECT MIN(driver_ratings) AS min_driver_rating, MAX(driver_ratings) AS max_driver_rating
+FROM cte;
+---------------------------------------------------------------------------------------------------------------------
+
+-- Q7. Retrieve all rides where payment was made using UPI.
+
+SELECT *
+FROM ola
+WHERE payment_method ILIKE 'UPI';
+---------------------------------------------------------------------------------------------------------------------
+
+-- Q8. Find the average customer rating per vehicle type.
+
+SELECT vehicle_Type, ROUND( AVG(customer_rating), 2 ) as avg_customer_rating 
+FROM ola
+GROUP BY vehicle_type;
+--------------------------------------------------------------------------------------------------------------------
+
+-- Q9. Calculate the total booking value of rides completed successfully.
+
+SELECT booking_status, SUM(booking_value) AS total_booking_value
+FROM ola
+WHERE booking_status ILIKE 'success'
+GROUP BY booking_status;
+--------------------------------------------------------------------------------------------------------------------
+
+-- Q10. List all incomplete rides along with the reason.
+
+SELECT booking_id, incomplete_rides_reason
+FROM ola
+WHERE incomplete_rides ILIKE 'yes';
